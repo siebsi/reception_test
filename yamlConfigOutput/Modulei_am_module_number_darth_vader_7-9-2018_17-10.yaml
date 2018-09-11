@@ -1,0 +1,29 @@
+daq_options:
+  acquisitionType: standard
+  channelIds: [10]
+  channelIdsDisableTOA: [22]
+  channelIdsDisableTOT: [22]
+  channelIdsToMask: [22]
+  compressRawData: true
+  currEvent: 2
+  externalChargeInjection: false
+  injectionDAC: 3000
+  nEvent: 3
+  preampFeedbackCapacitance: 8
+  pulseDelay: 47
+  shapingTime: 40
+  totDACThreshold: 200
+glb_options: {manufacturer: Karl_Gill, moduleNumber: i_am_module_number_darth_vader,
+  outputRawDataPath: data, outputYamlPath: yamlConfigOutput, serverCodePath: /home/pi/rpi-daq-patrick,
+  serverIpAdress: 128.141.47.140, startServerManually: false, storeYamlFile: true,
+  type_of_hardware: something_with_hexagons}
+testswitches:
+  IV_curve: false
+  RollMask_full_ON: false
+  SCA_full_ON: false
+  ToT_ToA_full_ON: false
+  chip_array: [0, 1, 2, 3]
+  printUnusualData_ON: false
+{max: 270, min: 210, th_broken_ch_chip: 1, th_broken_per_ch: 13, th_n_ev_broken: 0.1,
+  th_n_ev_noisy: 0.1, th_noisy_ch_chip: 20, th_noisy_per_ch: 1}
+{th_n_ev_to_issue: 0.1, th_to_ch_issue_chip: 10}

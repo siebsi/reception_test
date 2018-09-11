@@ -1,0 +1,200 @@
+<Select_and_launch_tests>:
+    cols: 3
+    GridLayout:
+        id:lefttop
+        cols: 1
+        Label:
+            text: 'Tests ON/OFF'
+            color: 0,0,0,1
+            bold: True
+            canvas.before:
+                Color:
+                    rgba: 0.278, 0.569, 1, 1 #light blue
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+        Button:
+            id: btnRM
+            text: 'Test full RollMask'
+            background_color: 0.5, 0.5, 0.5, 1 #gray
+            on_press: root.test_full_RollMask(self)
+        Button:
+            id: btnSCA
+            text: 'Test full SCA'
+            background_color: 0.5, 0.5, 0.5, 1 #gray
+            on_press: root.test_full_SCA(self)
+        Button:
+            id: btnTO
+            text: 'Test full TOA TOT'
+            background_color: 0.5, 0.5, 0.5, 1 #gray
+            on_press: root.test_full_ToT_ToA(self)
+        Button:
+            id: btnPRINT
+            text: 'Print unusual Data'
+            background_color: 0.5, 0.5, 0.5, 1 #gray
+            on_press: root.test_printUnusualData(self)
+        Button:
+            id: btnIV
+            text: 'IV-curve'
+            background_color: 0.5, 0.5, 0.5, 1 #gray
+            on_press: root.test_iv_curve(self)
+    GridLayout:
+        id:middletop
+        cols: 2
+        Label:
+            text: 'General input'
+            color: 0,0,0,1
+            bold: True
+            canvas.before:
+                Color:
+                    rgba: 0.278, 0.569, 1, 1 #light blue
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+        Button:
+            id: btnLAUNCH
+            text: 'LAUNCH'
+            background_color: 1, 0, 1, 1 #pink
+            on_press:root.launch_tests(self)
+        Label:
+            text: 'Number of Events'
+            color: 0,0,0,1
+            canvas.before:
+                Color:
+                    rgba: 0.278, 0.569, 1, 1 #light blue
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+        TextInput:
+            id:ev
+            text: " "
+        Label:
+            text: 'DUT-Name'
+            color: 0,0,0,1
+            canvas.before:
+                Color:
+                    rgba: 0.278, 0.569, 1, 1 #light blue
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+        TextInput:
+            id:DUT
+            text: ' '
+        Label:
+            text: 'Type of Hardware'
+            color: 0,0,0,1
+            canvas.before:
+                Color:
+                    rgba: 0.278, 0.569, 1, 1 #light blue
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+        TextInput:
+            id:Hardwaretype
+            text: ' '
+        Label:
+            text: 'Manufacturer'
+            color: 0,0,0,1
+            canvas.before:
+                Color:
+                    rgba: 0.278, 0.569, 1, 1 #light blue
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+        TextInput:
+            id:Manufacturer
+            text: ' '
+
+    GridLayout:
+        id:righttop
+        cols:2
+        Label:
+            text: 'Injection Data'
+            color: 0,0,0,1
+            bold: True
+            canvas.before:
+                Color:
+                    rgba: 0.278, 0.569, 1, 1 #light blue
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+        Button:
+            id: btnINJ
+            text: 'OFF'
+            background_color: 1, 0.6, 0.4, 1 #light orange
+            on_press: root.do_injection(self)
+        Label:
+            text: 'Acquisition Type'
+            color: 0,0,0,1
+            canvas.before:
+                Color:
+                    rgba: 0.278, 0.569, 1, 1 #light blue
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+        TextInput:
+            id:acqtype
+            text: ' '
+        Label:
+            text: 'Injection DAC'
+            color: 0,0,0,1
+            canvas.before:
+                Color:
+                    rgba: 0.278, 0.569, 1, 1 #light blue
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+        TextInput:
+            id:injDAC
+            text: ' '
+        Label:
+            text: 'Pulse Delay'
+            color: 0,0,0,1
+            canvas.before:
+                Color:
+                    rgba: 0.278, 0.569, 1, 1 #light blue
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+        TextInput:
+            id:delay
+            text: ' '
+        Label:
+            text: 'Channel (max 1 ch)'
+            color: 0,0,0,1
+            canvas.before:
+                Color:
+                    rgba: 0.278, 0.569, 1, 1 #light blue
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+        TextInput:
+            id:inputch
+            text: ' '
+
+
+#    GridLayout:
+#        id:middledown
+#        cols:1
+#        Label:
+#            text: 'Output Result:'
+#            color: 0,0,0,1
+#            bold: True
+#            canvas.before:
+#                Color:
+#                    rgba: root.col_DUT
+#                Rectangle:
+#                    pos: self.pos
+#                    size: self.size
+#        GridLayout:
+#            cols: 4
+#            Label:
+#                id: chip0
+#                color: 0,0,0,1
+#                text: 'Chip 0'
+#                canvas.before:
+#                    Color:
+#                        rgba: root.col_chip0
+#                    Rectangle:
+#                        pos: self.pos
+#                        size: self.size
