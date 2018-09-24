@@ -49,7 +49,7 @@ def get_comma_separated_args(option, opt, value, parser):
 
 '''-----------Define Configuration---------'''
 
-filename='default_config.yaml' #changeable by parser (later)
+filename='teststand_1_config.yaml' #changeable by parser (later)
 
 parser = OptionParser()
 parser.add_option('-e','--dataNotSaved',dest="dataNotSaved",action="store_true",default=False,
