@@ -1,5 +1,6 @@
 <Select_and_launch_tests>:
-    cols: 3
+    cols: 4
+    spacing: 10,0
     GridLayout:
         id:lefttop
         cols: 1
@@ -42,6 +43,19 @@
         id:middletop
         cols: 2
         Label:
+            text: 'Enter HV:'
+            color: 0,0,0,1
+            bold: True
+            canvas.before:
+                Color:
+                    rgba: 0.278, 0.569, 1, 1 #light blue
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+        TextInput:
+            id:hv
+            text: " "
+        Label:
             text: 'General input'
             color: 0,0,0,1
             bold: True
@@ -69,7 +83,7 @@
             id:ev
             text: " "
         Label:
-            text: 'DUT-Name'
+            text: 'Module Number'
             color: 0,0,0,1
             canvas.before:
                 Color:
@@ -120,7 +134,7 @@
                     size: self.size
         Button:
             id: btnINJ
-            text: 'OFF'
+            text: ' '
             background_color: 1, 0.6, 0.4, 1 #light orange
             on_press: root.do_injection(self)
         Label:
@@ -160,7 +174,7 @@
             id:delay
             text: ' '
         Label:
-            text: 'Channel (max 1 ch)'
+            text: 'Channel (e.g. 12,16,18 or all)'
             color: 0,0,0,1
             canvas.before:
                 Color:
@@ -170,6 +184,112 @@
                     size: self.size
         TextInput:
             id:inputch
+            text: ' '
+
+    GridLayout:
+        id:veryrighttop
+        cols:2
+        Label:
+            text: 'IV-Curve'
+            bold: True
+            color: 0,0,0,1
+            canvas.before:
+                Color:
+                    rgba: 0.278, 0.569, 1, 1 #light blue
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+        Label:
+            color: 0,0,0,1
+            canvas.before:
+                Color:
+                    rgba: 0.278, 0.569, 1, 1 #light blue
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+        Label:
+            text: 'GPIB Address'
+            color: 0,0,0,1
+            canvas.before:
+                Color:
+                    rgba: 0.278, 0.569, 1, 1 #light blue
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+        TextInput:
+            id:gpib
+            text: ' '
+        Label:
+            text: 'vMax'
+            color: 0,0,0,1
+            canvas.before:
+                Color:
+                    rgba: 0.278, 0.569, 1, 1 #light blue
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+        TextInput:
+            id:vmax
+            text: ' '
+        Label:
+            text: 'Compliance Current'
+            color: 0,0,0,1
+            canvas.before:
+                Color:
+                    rgba: 0.278, 0.569, 1, 1 #light blue
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+        TextInput:
+            id:compcurr
+            text: ' '
+        Label:
+            text: 'Step Size'
+            color: 0,0,0,1
+            canvas.before:
+                Color:
+                    rgba: 0.278, 0.569, 1, 1 #light blue
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+        TextInput:
+            id:stepsize
+            text: ' '
+        Label:
+            text: 'Delay between Steps'
+            color: 0,0,0,1
+            canvas.before:
+                Color:
+                    rgba: 0.278, 0.569, 1, 1 #light blue
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+        TextInput:
+            id:ivdelay
+            text: ' '
+        Label:
+            text: 'Humidity'
+            color: 0,0,0,1
+            canvas.before:
+                Color:
+                    rgba: 0.278, 0.569, 1, 1 #light blue
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+        TextInput:
+            id:hum
+            text: ' '
+        Label:
+            text: 'Temperature'
+            color: 0,0,0,1
+            canvas.before:
+                Color:
+                    rgba: 0.278, 0.569, 1, 1 #light blue
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+        TextInput:
+            id:temperature
             text: ' '
 
 

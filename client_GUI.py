@@ -10,7 +10,9 @@ from kivy.core.window import Window
 from kivy.uix.textinput import TextInput
 import yaml_writer
 import yaml
-#from daq_zmq_client_with_GUI import yaml_config
+import visa
+from pymeasure.instruments.keithley import Keithley2400
+from time import sleep
 
 class Select_and_launch_tests(GridLayout):
     Window.clearcolor = (1, 1, 1, 1) #white background
@@ -48,12 +50,54 @@ class Select_and_launch_tests(GridLayout):
         self.my_run=runtest
         self.ids.ev.text=str(config.default_options['daq_options']['nEvent'])
         self.ids.acqtype.text=config.default_options['daq_options']['acquisitionType']
-        self.ids.inputch.text=str(config.default_options['daq_options']['channelIds'])
+        self.ids.inputch.text=str(*config.default_options['daq_options']['channelIds'])
         self.ids.injDAC.text=str(config.default_options['daq_options']['injectionDAC'])
         self.ids.delay.text=str(config.default_options['daq_options']['pulseDelay'])
         self.ids.DUT.text=str(config.default_options['glb_options']['moduleNumber'])
         self.ids.Hardwaretype.text=str(config.default_options['glb_options']['type_of_hardware'])
         self.ids.Manufacturer.text=str(config.default_options['glb_options']['manufacturer'])
+        self.ids.gpib.text=str(config.iv_variables['gpib_adr'])
+        self.ids.vmax.text=str(config.iv_variables['vMax'])
+        self.ids.compcurr.text=str(config.iv_variables['compCurr'])
+        self.ids.stepsize.text=str(config.iv_variables['stepSize'])
+        self.ids.ivdelay.text=str(config.iv_variables['delay'])
+        self.ids.hv.text=str(config.default_options['daq_options']['hv'])
+        if (self.config.default_options['testswitches']['RollMask_full_ON']==True):
+            print ('Test Full RollMask active')
+            self.ids.btnRM.background_color= 0.2, 0.6, 0, 1 #light green
+        else:
+            print ('Test Full RollMask inactive')
+            self.ids.btnRM.background_color= 0.5, 0.5, 0.5, 1 #gray
+        if (self.config.default_options['testswitches']['ToT_ToA_full_ON']==True):
+            print ('Test Full TOA TOT active')
+            self.ids.btnTO.background_color= 0.2, 0.6, 0, 1 #light green
+        else:
+            print ('Test Full TOA TOT inactive')
+            self.ids.btnTO.background_color= 0.5, 0.5, 0.5, 1 #gray
+        if (self.config.default_options['testswitches']['SCA_full_ON']==True):
+            print ('Test Full SCA active')
+            self.ids.btnSCA.background_color = 0.2, 0.6, 0, 1 #light green
+        else:
+            print ('Test Full SCA inactive')
+            self.ids.btnSCA.background_color= 0.5, 0.5, 0.5, 1 #gray
+        if (self.config.default_options['testswitches']['printUnusualData_ON']==True):
+            print ('Test Print unusual Data active')
+            self.ids.btnPRINT.background_color = 0.2, 0.6, 0, 1 #light green
+        else:
+            print ('Test Print unusual Data inactive')
+            self.ids.btnPRINT.background_color= 0.5, 0.5, 0.5, 1 #gray
+        if (self.config.default_options['testswitches']['IV_curve']==True):
+            print ('IV-curve active')
+            self.ids.btnIV.background_color = 0.2, 0.6, 0, 1 #light green
+        else:
+            print ('IV-curve inactive')
+            self.ids.btnIV.background_color= 0.5, 0.5, 0.5, 1 #gray
+        if (config.default_options['daq_options']['externalChargeInjection']==True):
+            self.ids.btnINJ.text='ON'
+            print('Injection ON')
+        else:
+            self.ids.btnINJ.text='OFF'
+            print('Injection OFF')
 
 #below : change the functions to change the text in the buttons/buttons colors
     def test_full_RollMask(self,obj):
@@ -114,12 +158,30 @@ class Select_and_launch_tests(GridLayout):
     def launch_tests(self,obj):
         self.config.default_options['daq_options']['nEvent']=int(self.ids.ev.text)
         self.config.default_options['daq_options']['acquisitionType']=self.ids.acqtype.text
-        self.config.default_options['daq_options']['channelIds']=self.ids.inputch.text
         self.config.default_options['daq_options']['injectionDAC']=int(self.ids.injDAC.text)
         self.config.default_options['daq_options']['pulseDelay']=int(self.ids.delay.text)
-        self.config.default_options['glb_options']['moduleNumber']=self.ids.DUT.text
+        self.config.default_options['glb_options']['moduleNumber']=int(self.ids.DUT.text)
         self.config.default_options['glb_options']['type_of_hardware']=self.ids.Hardwaretype.text
         self.config.default_options['glb_options']['manufacturer']=self.ids.Manufacturer.text
+        self.config.iv_variables['gpib_adr']=int(self.ids.gpib.text)
+        self.config.iv_variables['vMax']=int(self.ids.vmax.text)
+        self.config.iv_variables['compCurr']=float(self.ids.compcurr.text)
+        self.config.iv_variables['stepSize']=int(self.ids.stepsize.text)
+        self.config.iv_variables['delay']=float(self.ids.ivdelay.text)
+        self.config.iv_variables['humidity']=self.ids.hum.text
+        self.config.iv_variables['temperature']=self.ids.temperature.text
+        self.config.default_options['daq_options']['hv']=int(self.ids.hv.text)
+        channels=[]
+        if self.ids.inputch.text=='all':
+            for i in range(64):
+                channels.append(int(i))
+            self.config.default_options['daq_options']['channelIds']=channels
+        elif (self.ids.inputch.text=='') or (self.ids.inputch.text==' ') :
+            self.config.default_options['daq_options']['channelIds']=[]
+        else:
+            channels=self.ids.inputch.text.split(',')
+            channels=[int(i) for i in channels]
+            self.config.default_options['daq_options']['channelIds']=channels
 
         '''Perform tests: (see rpi_data_tests.py for details)'''
         #Read GUI-Input
@@ -151,7 +213,16 @@ class Select_and_launch_tests(GridLayout):
         self.col_chip3TO=self.gray
         self.col_DUT=self.gray"""
         #Perform tests
-        self.my_run()
+        if self.config.default_options['daq_options']['externalChargeInjection']==False:
+            self.my_run()
+        else:
+            for i in channels:
+                self.config.default_options['daq_options']['channelIds']=[i]
+                self.my_run()
+        keith_str="GPIB::"+str(self.config.iv_variables['gpib_adr'])
+        keith=Keithley2400(keith_str)
+        keith.reset()
+        keith.shutdown()
         """#Change Result Label colours
         if(self.config.default_options['testswitches']['RollMask_full_ON']):
             if(common_variables.rollMask_issue[0]):

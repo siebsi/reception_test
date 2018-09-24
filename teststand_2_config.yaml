@@ -1,0 +1,58 @@
+# coding=utf-8
+---
+default_options:
+ daq_options:
+  compressRawData: yes #yes needed!
+  nEvent: 1000 #number of total events
+  currEvent: 0 #number of current event, wil be updated by the programm
+  externalChargeInjection: False #Injection ON/OFF
+  acquisitionType: standard #"standard","sweep","fixed","const_inj","instrumental_trigger","external_trigger"
+  channelIds: [] #Where to inject Data - only 1 value allowed
+  channelIdsToMask: [22]
+  channelIdsDisableTOT: [22]
+  channelIdsDisableTOA: [22]
+  injectionDAC: 3000 #DAC counts for the injection
+  pulseDelay: 47 #injection delay
+  preampFeedbackCapacitance: 8
+  totDACThreshold: 200 
+  shapingTime: 40
+  hv: 250
+ glb_options:
+  moduleNumber: 9999 #string Input allowed
+  outputRawDataPath: data #Folder
+  outputIVPath: IV_LOG #Folder
+  outputYamlPath: yamlConfigOutput #Folder
+  storeYamlFile: yes #to get config again
+  startServerManually: no #no= Pi starts automatically
+  serverIpAdress: hgc-rpi-llr #IP-PI
+  serverCodePath: /home/pi/rpi-daq #Path of the daq-zmq-server.py
+  type_of_hardware: modules #with or without silicon
+  manufacturer: UCSB #Or Dave Barney? ;)
+ testswitches:
+  RollMask_full_ON: True
+  ToT_ToA_full_ON: True
+  SCA_full_ON: True
+  printUnusualData_ON: False
+  IV_curve: True
+  chip_array: [0,1,2,3] 
+sca_variables:
+ min: 150 #minimum SCA value to pass the test
+ max: 300 #maximum SCA value to pass the test
+ th_noisy_per_ch: 1 #number of sca-values in a single channel (in a single event) to consider if noisy (1-13)
+ th_broken_per_ch: 13 #number of sca-values in a single channel (in a single event) to consider if broken (1-13)
+ th_n_ev_broken: 0.10 #n_current_event*th_n_ev_broken=limit for number of events a channel has to be broken to be considered as broken globally. Overwritten after each event. (percentage (0-1))
+ th_n_ev_noisy: 0.10 #n_current_event*th_n_ev_noisy=limit for number of events a channel has to be noisy to be considered as noisy globally. Overwritten after each event. (percentage (0-1))
+ th_noisy_ch_chip: 20 #number of channels which have to be noisy to consider the chip as noisy (1-64)
+ th_broken_ch_chip: 1 #number of channels which have to be broken to consider the chip as broken (1-64)
+toa_tot_variables:
+ th_n_ev_to_issue: 0.10 #n_current_event*th_n_ev_to_issue=limit for number of events a channel has to have a TO issue to be considered as having a TO issue globally. Overwritten after each event. (percentage (0-1))
+ th_to_ch_issue_chip: 10 #number of channels which have to have a TO issue to consider the chip has a TO issue (1-64)
+iv_variables:
+ gpib_adr: 24
+ vMax: 300
+ compCurr: 0.001
+ stepSize: 10
+ delay: 5
+ humidity:
+ temperature:
+...

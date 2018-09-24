@@ -52,6 +52,7 @@ class unpacker:
             for ch in range(128):
                 for sca in range(0,15):
                     self.sk2cms_data[sk][ch][sca] = ev[sk][sca*128+ch]
+                #Time-reordering:
                 self.sk2cms_data[sk][ch][::]=self.sk2cms_data[sk][ch][::-1]#reverses sca array
                 tmpArray=self.sk2cms_data[sk][ch][::]
                 self.sk2cms_data[sk][ch][13]=tmpArray[1]#move TOA and TOT back to the end
@@ -61,7 +62,7 @@ class unpacker:
                         self.sk2cms_data[sk][ch][i]=tmpArray[firstBit+i+2]
                     else:
                         self.sk2cms_data[sk][ch][i]=tmpArray[firstBit+i+2-13]
-                '''tmp2=[None for i in range(13)] #reverse it again (seems to be upsidedown- oder doch nicht)
+                '''tmp2=[None for i in range(13)] #reverse it again
                 for i in range(13):
                     tmp2[i]=self.sk2cms_data[sk][ch][i]
                 for i in range (13):

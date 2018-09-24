@@ -13,7 +13,6 @@ class checker():
         self.data_array=da #Style: [[0 for sca in range(15)] for ch in range(64)] for sk in range(4)]
         self.rollMask=rm #Style: =[0x0000 for sk in range(4)]
         self.conf=conf
-        print(self.conf.sca_variables)
         self.curr_ev=self.conf.default_options['daq_options']['currEvent']
 
     def printUnusualData(self):
