@@ -24,8 +24,8 @@ default_options:
   outputYamlPath: yamlConfigOutput #Folder
   storeYamlFile: yes #to get config again
   startServerManually: no #no= Pi starts automatically
-  serverIpAdress: rpi-3p #IP-PI
-  serverCodePath: /home/pi/rpi-daq-patrick #Path of the daq-zmq-server.py
+  serverIpAdress: pchgsensor01 #IP-PI################
+  serverCodePath: /home/hgsensor/rpi-daq #Path of the daq-zmq-server.py########################
   type_of_hardware: modules #with or without silicon
   manufacturer: UCSB #Or Dave Barney? ;)
  testswitches:
@@ -50,7 +50,7 @@ toa_tot_variables:
 iv_variables:
  gpib_adr: 5
  vMax: 300
- compCurr: 0.001
+ compCurr: 0.0001
  stepSize: 10
  delay: 5
  humidity:

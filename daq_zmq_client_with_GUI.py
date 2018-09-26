@@ -91,16 +91,16 @@ daq_options['injectionDAC']=options.injectionDAC
 daq_options['pulseDelay']=options.pulseDelay
 daq_options['channelIds'].append(options.channelIds)'''
 
-datadir = "/Users/patricksieberer/Documents/reception_test/pchgcal_data/2018/tests_20_09/"
+datadir = "/Users/patricksieberer/Documents/reception_test/PCHGACL01/hgcaldata/2018/Hexaboard_V3_ReceptionTests/"
 
 def run_test():
     os.system("rm yamlConfigOutput data IV_LOG")
-    os.system("mkdir -p " + datadir + "raw/module"+str(glb_options['moduleNumber']))
-    os.system("mkdir -p " + datadir + "yaml/module"+str(glb_options['moduleNumber']))
-    os.system("mkdir -p " + datadir + "iv/module"+str(glb_options['moduleNumber']))
-    os.system("ln -s -F " + datadir + "raw/module"+str(glb_options['moduleNumber'])+" data")
-    os.system("ln -s -F " + datadir + "yaml/module"+str(glb_options['moduleNumber'])+" yamlConfigOutput")
-    os.system("ln -s -F " + datadir + "iv/module"+str(glb_options['moduleNumber'])+" IV_LOG")
+    os.system("mkdir -p " + datadir + "module"+str(glb_options['moduleNumber'])+'/raw')
+    os.system("mkdir -p " + datadir + "module"+str(glb_options['moduleNumber'])+'/yaml')
+    os.system("mkdir -p " + datadir + "module"+str(glb_options['moduleNumber'])+'/iv')
+    os.system("ln -s -F " + datadir + "module"+str(glb_options['moduleNumber'])+'/raw'+" data")
+    os.system("ln -s -F " + datadir + "module"+str(glb_options['moduleNumber'])+'/yaml'+" yamlConfigOutput")
+    os.system("ln -s -F " + datadir + "module"+str(glb_options['moduleNumber'])+'/iv'+" IV_LOG")
     """print('AFTER:')
     pprint("Global options = "+yaml.dump(glb_options))
     pprint("DAQ options = "+yaml.dump(daq_options))"""
@@ -140,209 +140,210 @@ def run_test():
     #Set HV
     keith_str="GPIB::"+str(iv_stuff['gpib_adr'])
     keith = Keithley2400(keith_str)
-    keith.reset()
-    keith.apply_voltage(None,iv_stuff['compCurr'])
-    keith.enable_source()
-    keith.ramp_to_voltage(int(daq_options['hv']))
-    keith.measure_current(1,iv_stuff['compCurr'],True)
-    sleep(5)
-    if glb_options['startServerManually']==False:
-        os.system("ssh -T pi@"+glb_options['serverIpAdress']+" \"nohup python "+glb_options['serverCodePath']+"/daq-zmq-server.py > log.log 2>&1& \"")
-    context = zmq.Context()
-    socket = context.socket(zmq.REQ)
-    print("Send request to server")
-    socket.connect("tcp://"+glb_options['serverIpAdress']+":5555")
-    cmd="DAQ_CONFIG"
-    print(cmd)
-    socket.send_string(cmd)
-    status=socket.recv_string()
-    print(status)
-    if status=="READY_FOR_CONFIG":
-        socket.send_string(config.dump())
-        the_config=socket.recv_string()
-        print("Returned DAQ_CONFIG:\n%s"%the_config)
-    else:
-        print("WRONG STATUS -> exit()",status)
-        exit()
+    #keith.reset()
+    if (int(glb_options['moduleNumber'])>0):
+        keith.apply_voltage(None,iv_stuff['compCurr'])
+        keith.enable_source()
+        keith.ramp_to_voltage(int(daq_options['hv']))
+        keith.measure_current(1,iv_stuff['compCurr'],True)
+        sleep(5)
+        if glb_options['startServerManually']==False:
+            os.system("ssh -T hgsensor@"+glb_options['serverIpAdress']+" \"nohup python "+glb_options['serverCodePath']+"/daq-zmq-server.py > log.log 2>&1& \"")
+        context = zmq.Context()
+        socket = context.socket(zmq.REQ)
+        print("Send request to server")
+        socket.connect("tcp://"+glb_options['serverIpAdress']+":5555")
+        cmd="DAQ_CONFIG"
+        print(cmd)
+        socket.send_string(cmd)
+        status=socket.recv_string()
+        print(status)
+        if status=="READY_FOR_CONFIG":
+            socket.send_string(config.dump())
+            the_config=socket.recv_string()
+            print("Returned DAQ_CONFIG:\n%s"%the_config)
+        else:
+            print("WRONG STATUS -> exit()",status)
+            exit()
 
-    dataSize=30786 # 30784 + 2 for injection value
-    if daq_options['compressRawData']==True:
-            dataSize=15394 # 30784/2 + 2 for injection value
-    dataStringUnpacker=struct.Struct('B'*dataSize)
+        dataSize=30786 # 30784 + 2 for injection value
+        if daq_options['compressRawData']==True:
+                dataSize=15394 # 30784/2 + 2 for injection value
+        dataStringUnpacker=struct.Struct('B'*dataSize)
 
-    outputFile=None
-    if options.dataNotSaved==False:
-        while True:
-            rawFileName=glb_options['outputRawDataPath']+"/Module"+str(glb_options['moduleNumber'])+"_"
-            rawFileName=rawFileName+str(the_time.day)+"-"+str(the_time.month)+"-"+str(the_time.year)+"_"+str(the_time.hour)+"-"+str(the_time.minute)+"-"+str(the_time.second)
-            if (int(daq_options['hv'])==0):
-                rawFileName+='_HV_OFF'
-            rawFileName=rawFileName+".raw"
-            if os.path.exists(rawFileName): #to avoid overwriting
-                continue
-            else:
-                print("open output file : ",rawFileName)
-                outputFile = open(rawFileName,'wb')
-                if glb_options['storeYamlFile']==True:
-                    yamlFileName=glb_options['outputYamlPath']+"/Module"+str(glb_options['moduleNumber'])+"_"
-                    yamlFileName=yamlFileName+str(the_time.day)+"-"+str(the_time.month)+"-"+str(the_time.year)+"_"+str(the_time.hour)+"-"+str(the_time.minute)+"-"+str(the_time.second)
-                    if (int(daq_options['hv'])==0):
-                        yamlFileName+='_HV_OFF'
-                    yamlFileName=yamlFileName+".yaml"
-                    print("save yaml file : ",yamlFileName)
-                    config.dumpToYaml(yamlFileName)
+        outputFile=None
+        if options.dataNotSaved==False:
+            while True:
+                rawFileName=glb_options['outputRawDataPath']+"/Module"+str(glb_options['moduleNumber'])+"_"
+                rawFileName=rawFileName+str(the_time.day)+"-"+str(the_time.month)+"-"+str(the_time.year)+"_"+str(the_time.hour)+"-"+str(the_time.minute)+"-"+str(the_time.second)
+                if (int(daq_options['hv'])==0):
+                    rawFileName+='_HV_OFF'
+                rawFileName=rawFileName+".raw"
+                if os.path.exists(rawFileName): #to avoid overwriting
+                    continue
+                else:
+                    print("open output file : ",rawFileName)
+                    outputFile = open(rawFileName,'wb')
+                    if glb_options['storeYamlFile']==True:
+                        yamlFileName=glb_options['outputYamlPath']+"/Module"+str(glb_options['moduleNumber'])+"_"
+                        yamlFileName=yamlFileName+str(the_time.day)+"-"+str(the_time.month)+"-"+str(the_time.year)+"_"+str(the_time.hour)+"-"+str(the_time.minute)+"-"+str(the_time.second)
+                        if (int(daq_options['hv'])==0):
+                            yamlFileName+='_HV_OFF'
+                        yamlFileName=yamlFileName+".yaml"
+                        print("save yaml file : ",yamlFileName)
+                        config.dumpToYaml(yamlFileName)
+                    break
+
+        '''-------Write Configuration to Pi-------'''
+
+        cmd="CONFIGURE"
+        print(cmd)
+        socket.send_string(cmd)
+        return_bitstring = socket.recv_string()
+        print("Returned bit string = ",return_bitstring)
+        bitstring=[int(i,16) for i in return_bitstring.split()]
+        print("\t write bits string in output file")
+        byteArray = bytearray(bitstring)
+        if options.dataNotSaved==False:
+            outputFile.write(byteArray)
+        '''the_bit_string=sk2conf.bit_string()
+        if daq_options['externalChargeInjection']==True:
+            the_bit_string.set_channels_for_charge_injection(daq_options['channelIds'])
+        if daq_options['preampFeedbackCapacitance']>63:
+            print("!!!!!!!!! WARNING :: preampFeedbackCapacitance should not be higher than 63 !!!!!!!")
+        the_bit_string.set_preamp_feedback_capacitance(daq_options['preampFeedbackCapacitance'])
+        the_bit_string.set_channels_to_mask(daq_options['channelIdsToMask'])
+        the_bit_string.set_channels_to_disable_trigger_tot(daq_options['channelIdsDisableTOT'])
+        the_bit_string.set_channels_to_disable_trigger_toa(daq_options['channelIdsDisableTOA'])
+        the_bit_string.set_lg_shaping_time(daq_options['shapingTime'])
+        the_bit_string.set_hg_shaping_time(daq_options['shapingTime'])
+        the_bit_string.set_tot_dac_threshold(daq_options['totDACThreshold'])
+        a=the_bit_string.get_48_unsigned_char_p()
+        #the_bit_string.Print()
+        print( "outputBitString", [hex(a[i]) for i in range(len(a))] )'''   #still wrong!!!! Config Test missing!
+
+
+        '''-----------Read Events and Online Data-analysis---------'''
+
+        cmd="PROCESS_AND_PUSH_N_EVENTS"
+        socket.send_string(cmd)
+        mes=socket.recv_string()
+        print('\t***',mes,'***')
+        puller=context.socket(zmq.PULL)
+        puller.connect("tcp://"+glb_options['serverIpAdress']+":5556")
+        try:
+            while True:
+                full_noise_counter=[[0 for i in range(64)]for sk in testswitches['chip_array']]
+                full_broken_counter=[[0 for i in range(64)] for sk in testswitches['chip_array']]
+                full_to_counter=[[0 for i in range(64)] for sk in testswitches['chip_array']]
+                for i in range(daq_options['nEvent']):
+                    daq_options['currEvent']=i
+                    str_data=puller.recv()
+                    rawdata=dataStringUnpacker.unpack(str_data)
+                    print("\n \n \n Receive event ",i)
+                    ''' #######ONLINE DATA TESTS######'''
+                    '''Setup'''
+                    byteArray = bytearray(rawdata)
+                    up=unpacker()
+                    up.unpack(byteArray)
+                    #up.showData(i)
+                    data_to_check=checker(up.sk2cms_data,up.rollMask,config)
+                    '''Perform tests: (see rpi_data_tests.py for details)'''
+                    if(testswitches['RollMask_full_ON']):
+                        rm=data_to_check.check_full_RollMask()
+                        for sk in testswitches['chip_array']:
+                            if(rm[sk] == True): #Once a Rollmask issue = everytime a Rollmask issue
+                                common_variables.rollMask_issue[sk]=True
+                            else:
+                                common_variables.rollMask_issue[sk]=False
+
+                    #if common_variables.rollMask_issue[0]==True:
+                    #    break
+
+                    if(testswitches['SCA_full_ON']):
+                        noisy_ch_counter=0; noisy_channels=[]; broken_ch_counter=0; broken_channels=[] #initialization of the output variables of the current test
+                        (noisy_ch_counter,noisy_channels,broken_ch_counter,broken_channels)=data_to_check.check_full_sca()
+                        current_ch_broken_limit=math.ceil(config.sca_variables['th_n_ev_broken']*float(i+1)) #How many times a channel needs to be broken in order to be considered as broken
+                        common_variables.broken_ch_list=[[None for i in range(0)] for sk in testswitches['chip_array']]
+                        current_ch_noisy_limit=math.ceil(config.sca_variables['th_n_ev_noisy']*float(i+1)) #How many times a channel needs to be noisy in order to be considered as noisy
+                        common_variables.noisy_ch_list=[[None for i in range(0)] for sk in testswitches['chip_array']]
+                        for sk in testswitches['chip_array']:
+                            for j in broken_channels[sk]:
+                                full_broken_counter[sk][j]+=1
+                            for j in noisy_channels[sk]:
+                                full_noise_counter[sk][j]+=1
+                            for j in range(64):
+                                if(full_broken_counter[sk][j]>=current_ch_broken_limit):
+                                    #print(len(common_variables.broken_ch_list[1]))
+                                    common_variables.broken_ch_list[sk].append(j)
+                                if(full_noise_counter[sk][j]>=current_ch_noisy_limit):
+                                    common_variables.noisy_ch_list[sk].append(j)
+                            common_variables.n_noisy_ch_chip[sk]=len(common_variables.noisy_ch_list[sk]) #global for all event done so far
+                            common_variables.n_broken_ch_chip[sk]=len(common_variables.broken_ch_list[sk]) #global for all event done so far
+                            common_variables.chip_broken[sk]=(common_variables.n_broken_ch_chip[sk]>=config.sca_variables['th_broken_ch_chip'])
+                            common_variables.chip_noisy[sk]=(common_variables.n_noisy_ch_chip[sk]>=config.sca_variables['th_noisy_ch_chip'])
+                            if common_variables.chip_broken[sk]==True:
+                                common_variables.hexaboard_broken=True
+                            if common_variables.chip_noisy[sk]==True:
+                                common_variables.hexaboard_noisy=True
+
+                    if(testswitches['ToT_ToA_full_ON']):
+                        less_counts_than_threshold=[True for sk in testswitches['chip_array']]; wrong_To_list=[[] for sk in testswitches['chip_array']]
+                        (less_counts_than_threshold,wrong_To_list)=data_to_check.check_full_TOA_TOT()
+                        current_to_issue_limit=math.ceil(config.toa_tot_variables['th_n_ev_to_issue']*float(i+1))
+                        common_variables.to_issue_ch_list=[[None for i in range(0)] for sk in testswitches['chip_array']]
+                        for sk in testswitches['chip_array']:
+                            for j in wrong_To_list[sk]:
+                                full_to_counter[sk][j]+=1
+                            for j in range(64):
+                                if(full_to_counter[sk][j]>=current_to_issue_limit):
+                                    common_variables.to_issue_ch_list[sk].append(j)
+                            common_variables.n_to_issues_chip[sk]=len(common_variables.to_issue_ch_list[sk]) #global for all event done so far
+                            common_variables.chip_to_issue[sk]=(common_variables.n_to_issues_chip[sk]>=config.toa_tot_variables['th_to_ch_issue_chip'])
+                            if common_variables.chip_to_issue[sk]==True:
+                                common_variables.hexaboard_to_issue=True
+
+                    if(testswitches['printUnusualData_ON']):
+                        data_to_check.printUnusualData()#full test
+                    '''print file'''
+                    if True: #options.dataNotSaved==False:
+                        outputFile.write(byteArray)
+
+                    #calculate final result for chips and the HB
+                    for sk in testswitches['chip_array']:
+                        bool_tests_executed_passed=((not testswitches['RollMask_full_ON'] or not common_variables.rollMask_issue[sk])and(not testswitches['SCA_full_ON'] or not common_variables.chip_broken[sk])) #only RM and SCA-broken can make the whole test fail
+                        if(bool_tests_executed_passed):
+                            common_variables.chip_results[sk]='PASS'
+                            if common_variables.chip_noisy[sk]:
+                                common_variables.chip_results[sk]+=' -NOISY'
+                            if common_variables.chip_to_issue[sk]:
+                                common_variables.chip_results[sk]+=' -TO_ISSUE'
+                        else:
+                            common_variables.chip_results[sk]='FAIL'
+
+                    common_variables.DUT_result='PASS'
+                    for sk in testswitches['chip_array']:
+                        if common_variables.chip_results[sk]=='FAIL':
+                            common_variables.DUT_result='FAIL'
+                            break
+                        elif common_variables.chip_results[sk]=='PASS -NOISY':
+                            common_variables.DUT_result+=' '+str(sk)+'-NOISY'
+                        elif common_variables.chip_results[sk]=='PASS -TO_ISSUE':
+                            common_variables.DUT_result+=' '+str(sk)+'-TO_ISSUE'
+                        elif common_variables.chip_results[sk]=='PASS -NOISY -TO_ISSUE':
+                            common_variables.DUT_result+=' '+str(sk)+'-NOISY-TO_ISSUE'
+                puller.close()
+                socket.send_string("END_OF_RUN")
+                if socket.recv_string()=="CLOSING_SERVER":
+                    print("CLOSING SERVER")
+                    socket.close()
+                    context.term()
                 break
 
-    '''-------Write Configuration to Pi-------'''
-
-    cmd="CONFIGURE"
-    print(cmd)
-    socket.send_string(cmd)
-    return_bitstring = socket.recv_string()
-    print("Returned bit string = ",return_bitstring)
-    bitstring=[int(i,16) for i in return_bitstring.split()]
-    print("\t write bits string in output file")
-    byteArray = bytearray(bitstring)
-    if options.dataNotSaved==False:
-        outputFile.write(byteArray)
-    '''the_bit_string=sk2conf.bit_string()
-    if daq_options['externalChargeInjection']==True:
-        the_bit_string.set_channels_for_charge_injection(daq_options['channelIds'])
-    if daq_options['preampFeedbackCapacitance']>63:
-        print("!!!!!!!!! WARNING :: preampFeedbackCapacitance should not be higher than 63 !!!!!!!")
-    the_bit_string.set_preamp_feedback_capacitance(daq_options['preampFeedbackCapacitance'])
-    the_bit_string.set_channels_to_mask(daq_options['channelIdsToMask'])
-    the_bit_string.set_channels_to_disable_trigger_tot(daq_options['channelIdsDisableTOT'])
-    the_bit_string.set_channels_to_disable_trigger_toa(daq_options['channelIdsDisableTOA'])
-    the_bit_string.set_lg_shaping_time(daq_options['shapingTime'])
-    the_bit_string.set_hg_shaping_time(daq_options['shapingTime'])
-    the_bit_string.set_tot_dac_threshold(daq_options['totDACThreshold'])
-    a=the_bit_string.get_48_unsigned_char_p()
-    #the_bit_string.Print()
-    print( "outputBitString", [hex(a[i]) for i in range(len(a))] )'''   #still wrong!!!! Config Test missing!
-
-
-    '''-----------Read Events and Online Data-analysis---------'''
-
-    cmd="PROCESS_AND_PUSH_N_EVENTS"
-    socket.send_string(cmd)
-    mes=socket.recv_string()
-    print('\t***',mes,'***')
-    puller=context.socket(zmq.PULL)
-    puller.connect("tcp://"+glb_options['serverIpAdress']+":5556")
-    try:
-        while True:
-            full_noise_counter=[[0 for i in range(64)]for sk in testswitches['chip_array']]
-            full_broken_counter=[[0 for i in range(64)] for sk in testswitches['chip_array']]
-            full_to_counter=[[0 for i in range(64)] for sk in testswitches['chip_array']]
-            for i in range(daq_options['nEvent']):
-                daq_options['currEvent']=i
-                str_data=puller.recv()
-                rawdata=dataStringUnpacker.unpack(str_data)
-                print("\n \n \n Receive event ",i)
-                ''' #######ONLINE DATA TESTS######'''
-                '''Setup'''
-                byteArray = bytearray(rawdata)
-                up=unpacker()
-                up.unpack(byteArray)
-                #up.showData(i)
-                data_to_check=checker(up.sk2cms_data,up.rollMask,config)
-                '''Perform tests: (see rpi_data_tests.py for details)'''
-                if(testswitches['RollMask_full_ON']):
-                    rm=data_to_check.check_full_RollMask()
-                    for sk in testswitches['chip_array']:
-                        if(rm[sk] == True): #Once a Rollmask issue = everytime a Rollmask issue
-                            common_variables.rollMask_issue[sk]=True
-                        else:
-                            common_variables.rollMask_issue[sk]=False
-
-                #if common_variables.rollMask_issue[0]==True:
-                #    break
-
-                if(testswitches['SCA_full_ON']):
-                    noisy_ch_counter=0; noisy_channels=[]; broken_ch_counter=0; broken_channels=[] #initialization of the output variables of the current test
-                    (noisy_ch_counter,noisy_channels,broken_ch_counter,broken_channels)=data_to_check.check_full_sca()
-                    current_ch_broken_limit=math.ceil(config.sca_variables['th_n_ev_broken']*float(i+1)) #How many times a channel needs to be broken in order to be considered as broken
-                    common_variables.broken_ch_list=[[None for i in range(0)] for sk in testswitches['chip_array']]
-                    current_ch_noisy_limit=math.ceil(config.sca_variables['th_n_ev_noisy']*float(i+1)) #How many times a channel needs to be noisy in order to be considered as noisy
-                    common_variables.noisy_ch_list=[[None for i in range(0)] for sk in testswitches['chip_array']]
-                    for sk in testswitches['chip_array']:
-                        for j in broken_channels[sk]:
-                            full_broken_counter[sk][j]+=1
-                        for j in noisy_channels[sk]:
-                            full_noise_counter[sk][j]+=1
-                        for j in range(64):
-                            if(full_broken_counter[sk][j]>=current_ch_broken_limit):
-                                #print(len(common_variables.broken_ch_list[1]))
-                                common_variables.broken_ch_list[sk].append(j)
-                            if(full_noise_counter[sk][j]>=current_ch_noisy_limit):
-                                common_variables.noisy_ch_list[sk].append(j)
-                        common_variables.n_noisy_ch_chip[sk]=len(common_variables.noisy_ch_list[sk]) #global for all event done so far
-                        common_variables.n_broken_ch_chip[sk]=len(common_variables.broken_ch_list[sk]) #global for all event done so far
-                        common_variables.chip_broken[sk]=(common_variables.n_broken_ch_chip[sk]>=config.sca_variables['th_broken_ch_chip'])
-                        common_variables.chip_noisy[sk]=(common_variables.n_noisy_ch_chip[sk]>=config.sca_variables['th_noisy_ch_chip'])
-                        if common_variables.chip_broken[sk]==True:
-                            common_variables.hexaboard_broken=True
-                        if common_variables.chip_noisy[sk]==True:
-                            common_variables.hexaboard_noisy=True
-
-                if(testswitches['ToT_ToA_full_ON']):
-                    less_counts_than_threshold=[True for sk in testswitches['chip_array']]; wrong_To_list=[[] for sk in testswitches['chip_array']]
-                    (less_counts_than_threshold,wrong_To_list)=data_to_check.check_full_TOA_TOT()
-                    current_to_issue_limit=math.ceil(config.toa_tot_variables['th_n_ev_to_issue']*float(i+1))
-                    common_variables.to_issue_ch_list=[[None for i in range(0)] for sk in testswitches['chip_array']]
-                    for sk in testswitches['chip_array']:
-                        for j in wrong_To_list[sk]:
-                            full_to_counter[sk][j]+=1
-                        for j in range(64):
-                            if(full_to_counter[sk][j]>=current_to_issue_limit):
-                                common_variables.to_issue_ch_list[sk].append(j)
-                        common_variables.n_to_issues_chip[sk]=len(common_variables.to_issue_ch_list[sk]) #global for all event done so far
-                        common_variables.chip_to_issue[sk]=(common_variables.n_to_issues_chip[sk]>=config.toa_tot_variables['th_to_ch_issue_chip'])
-                        if common_variables.chip_to_issue[sk]==True:
-                            common_variables.hexaboard_to_issue=True
-
-                if(testswitches['printUnusualData_ON']):
-                    data_to_check.printUnusualData()#full test
-                '''print file'''
-                if True: #options.dataNotSaved==False:
-                    outputFile.write(byteArray)
-
-                #calculate final result for chips and the HB
-                for sk in testswitches['chip_array']:
-                    bool_tests_executed_passed=((not testswitches['RollMask_full_ON'] or not common_variables.rollMask_issue[sk])and(not testswitches['SCA_full_ON'] or not common_variables.chip_broken[sk])) #only RM and SCA-broken can make the whole test fail
-                    if(bool_tests_executed_passed):
-                        common_variables.chip_results[sk]='PASS'
-                        if common_variables.chip_noisy[sk]:
-                            common_variables.chip_results[sk]+=' -NOISY'
-                        if common_variables.chip_to_issue[sk]:
-                            common_variables.chip_results[sk]+=' -TO_ISSUE'
-                    else:
-                        common_variables.chip_results[sk]='FAIL'
-
-                common_variables.DUT_result='PASS'
-                for sk in testswitches['chip_array']:
-                    if common_variables.chip_results[sk]=='FAIL':
-                        common_variables.DUT_result='FAIL'
-                        break
-                    elif common_variables.chip_results[sk]=='PASS -NOISY':
-                        common_variables.DUT_result+=' '+str(sk)+'-NOISY'
-                    elif common_variables.chip_results[sk]=='PASS -TO_ISSUE':
-                        common_variables.DUT_result+=' '+str(sk)+'-TO_ISSUE'
-                    elif common_variables.chip_results[sk]=='PASS -NOISY -TO_ISSUE':
-                        common_variables.DUT_result+=' '+str(sk)+'-NOISY-TO_ISSUE'
-            puller.close()
-            socket.send_string("END_OF_RUN")
-            if socket.recv_string()=="CLOSING_SERVER":
-                print("CLOSING SERVER")
-                socket.close()
-                context.term()
-            break
-
-    except KeyboardInterrupt:
-        print("keyboard interruption")
-        keith.shutdown()
-        os.system("ssh -T pi@"+glb_options['serverIpAdress']+" \" killall python\"")
+        except KeyboardInterrupt:
+            print("keyboard interruption")
+            keith.shutdown()
+            os.system("ssh -T pi@"+glb_options['serverIpAdress']+" \" killall python\"")
     keith.shutdown()
 
 '''-----------Class for GUI - APP---------'''
