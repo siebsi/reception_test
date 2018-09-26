@@ -32,4 +32,4 @@ def IVcurve(gpib_adr, vMax, compCurr, stepSize, mydelay): #silicon: IVcuvre(vMax
     keith.shutdown()
     return(vArray,iArray_median)
 
-#(v,i)=IVcurve(4, 300, 0.001, 10 , 5) #gpib_adr, vMax, complianceCurrent, stepSize, delay_between_steps
+#(v,i)=IVcurve(24, 30, 0.001, 10 , 1) #gpib_adr, vMax, complianceCurrent, stepSize, delay_between_steps
