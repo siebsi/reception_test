@@ -114,16 +114,16 @@ def run_test():
         plt.title('Module '+str(glb_options['moduleNumber']))
         plt.plot(voltArray,currArray)
         #plt.plot(voltArray,currArray[0],'r',voltArray,currArray[1],'b',voltArray,currArray[2],'g',voltArray,currArray[3],'k',voltArray,currArray[4],'y')
-        ivName=glb_options['outputIVPath']+"/Module"+str(glb_options['moduleNumber'])+"_"
-        ivName=ivName+str(the_time.day)+"-"+str(the_time.month)+"-"+str(the_time.year)+"_"+str(the_time.hour)+"-"+str(the_time.minute)+"-"+str(the_time.second)
+        ivName=str(glb_options['outputCommonPath']) + "module"+str(glb_options['moduleNumber'])+'/iv/'
+        ivName=ivName+'Module'+str(glb_options['moduleNumber'])+"_"+str(the_time.day)+"-"+str(the_time.month)+"-"+str(the_time.year)+"_"+str(the_time.hour)+"-"+str(the_time.minute)+"-"+str(the_time.second)
         if (int(daq_options['hv'])==0):
             ivName+='_HV_OFF'
         ivName=ivName+".pdf"
         plt.savefig(ivName)
         #plt.show()
         plt.close(1)
-        ivName=glb_options['outputIVPath']+"/Module"+str(glb_options['moduleNumber'])+"_"
-        ivName=ivName+str(the_time.day)+"-"+str(the_time.month)+"-"+str(the_time.year)+"_"+str(the_time.hour)+"-"+str(the_time.minute)+"-"+str(the_time.second)
+        ivName=str(glb_options['outputCommonPath']) + "module"+str(glb_options['moduleNumber'])+'/iv/'
+        ivName=ivName+'Module'+str(glb_options['moduleNumber'])+"_"+str(the_time.day)+"-"+str(the_time.month)+"-"+str(the_time.year)+"_"+str(the_time.hour)+"-"+str(the_time.minute)+"-"+str(the_time.second)
         if (int(daq_options['hv'])==0):
             ivName+='_HV_OFF'
         ivName=ivName+".csv"
@@ -174,8 +174,8 @@ def run_test():
         outputFile=None
         if options.dataNotSaved==False:
             while True:
-                rawFileName=glb_options['outputRawDataPath']+"/Module"+str(glb_options['moduleNumber'])+"_"
-                rawFileName=rawFileName+str(the_time.day)+"-"+str(the_time.month)+"-"+str(the_time.year)+"_"+str(the_time.hour)+"-"+str(the_time.minute)+"-"+str(the_time.second)
+                rawFileName=str(glb_options['outputCommonPath']) + "module"+str(glb_options['moduleNumber'])+'/raw/'
+                rawFileName=rawFileName+'Module'+str(glb_options['moduleNumber'])+"_"+str(the_time.day)+"-"+str(the_time.month)+"-"+str(the_time.year)+"_"+str(the_time.hour)+"-"+str(the_time.minute)+"-"+str(the_time.second)
                 if (int(daq_options['hv'])==0):
                     rawFileName+='_HV_OFF'
                 rawFileName=rawFileName+".raw"
@@ -185,8 +185,8 @@ def run_test():
                     print("open output file : ",rawFileName)
                     outputFile = open(rawFileName,'wb')
                     if glb_options['storeYamlFile']==True:
-                        yamlFileName=glb_options['outputYamlPath']+"/Module"+str(glb_options['moduleNumber'])+"_"
-                        yamlFileName=yamlFileName+str(the_time.day)+"-"+str(the_time.month)+"-"+str(the_time.year)+"_"+str(the_time.hour)+"-"+str(the_time.minute)+"-"+str(the_time.second)
+                        yamlFileName=str(glb_options['outputCommonPath']) + "module"+str(glb_options['moduleNumber'])+'/yaml/'
+                        yamlFileName=yamlFileName+'Module'+str(glb_options['moduleNumber'])+"_"+str(the_time.day)+"-"+str(the_time.month)+"-"+str(the_time.year)+"_"+str(the_time.hour)+"-"+str(the_time.minute)+"-"+str(the_time.second)
                         if (int(daq_options['hv'])==0):
                             yamlFileName+='_HV_OFF'
                         yamlFileName=yamlFileName+".yaml"

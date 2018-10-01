@@ -19,9 +19,7 @@ default_options:
   hv: 250
  glb_options:
   moduleNumber: 9999 #string Input allowed
-  outputRawDataPath: data #Folder
-  outputIVPath: IV_LOG #Folder
-  outputYamlPath: yamlConfigOutput #Folder
+  outputCommonPath: /Users/patricksieberer/dummy/hgcaldata/2018/Hexaboard_V3_ReceptionTests/
   storeYamlFile: yes #to get config again
   startServerManually: no #no= Pi starts automatically
   serverIpAdress: pchgsensor01 #IP-PI################
