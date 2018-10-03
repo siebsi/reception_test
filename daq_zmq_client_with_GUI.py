@@ -141,7 +141,7 @@ def run_test():
     keith_str="GPIB::"+str(iv_stuff['gpib_adr'])
     keith = Keithley2400(keith_str)
     #keith.reset()
-    if (int(glb_options['moduleNumber'])>0):
+    if (int(daq_options['nEvent'])>0):
         keith.apply_voltage(None,iv_stuff['compCurr'])
         keith.enable_source()
         keith.ramp_to_voltage(int(daq_options['hv']))
